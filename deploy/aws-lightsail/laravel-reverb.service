@@ -1,0 +1,15 @@
+[Unit]
+Description=SmartEduConnect Laravel Reverb WebSocket Server
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /var/www/smarteduconnect-api/backend/artisan reverb:start --host=0.0.0.0 --port=6001
+WorkingDirectory=/var/www/smarteduconnect-api/backend
+StandardOutput=append:/var/log/smarteduconnect-reverb.log
+StandardError=append:/var/log/smarteduconnect-reverb-error.log
+
+[Install]
+WantedBy=multi-user.target
