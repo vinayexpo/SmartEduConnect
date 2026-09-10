@@ -22,9 +22,17 @@ class CoreDataController extends Controller
     use HandlesUploadStorage;
     use PaginatesLists;
 
-    public function classes(): JsonResponse
+    public function classes(Request $request): JsonResponse
     {
-        return response()->json(SchoolClass::orderBy('name')->orderBy('section')->get());
+        return $this->paginatedListResponse(
+            $request,
+            SchoolClass::orderBy('name')->orderBy('section'),
+            fn ($row) => $row,
+            [
+                'search' => ['name', 'section', 'academic_year'],
+                'sortable' => ['name', 'section', 'academic_year', 'created_at'],
+            ],
+        );
     }
 
     public function classManagement(): JsonResponse
@@ -139,9 +147,18 @@ class CoreDataController extends Controller
         return response()->json(['message' => 'Deleted']);
     }
 
-    public function subjects(): JsonResponse
+    public function subjects(Request $request): JsonResponse
     {
-        return response()->json(Subject::orderBy('name')->get());
+        return $this->paginatedListResponse(
+            $request,
+            Subject::orderBy('name'),
+            fn ($row) => $row,
+            [
+                'search' => ['name', 'code', 'category'],
+                'filters' => ['category' => 'category'],
+                'sortable' => ['name', 'code', 'category', 'created_at'],
+            ],
+        );
     }
 
     public function createSubject(Request $request): JsonResponse

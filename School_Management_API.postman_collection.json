@@ -1,0 +1,128 @@
+{
+  "info": {
+    "name": "SmartEduConnect School Management API",
+    "description": "Production collection for SmartEduConnect. Login first; the login request stores the returned token in the collection variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "https://smarteduconnect.in:8443"},
+    {"key": "token", "value": ""},
+    {"key": "classId", "value": "1"},
+    {"key": "studentId", "value": "1"},
+    {"key": "teacherId", "value": "1"},
+    {"key": "feeId", "value": "1"}
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {"name": "Admin Exists", "request": {"auth": {"type": "noauth"}, "method": "GET", "url": "{{baseUrl}}/auth/admin-exists"}},
+        {"name": "Register", "request": {"auth": {"type": "noauth"}, "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"full_name\": \"New User\",\n  \"email\": \"user@example.com\",\n  \"password\": \"ChangeMe123\",\n  \"role\": \"teacher\",\n  \"device_name\": \"Postman\"\n}"}, "url": "{{baseUrl}}/auth/register"}},
+        {"name": "Login", "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["const response = pm.response.json();", "if (response.token) pm.collectionVariables.set('token', response.token);"]}}], "request": {"auth": {"type": "noauth"}, "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"your-password\",\n  \"device_name\": \"Postman\"\n}"}, "url": "{{baseUrl}}/auth/login"}},
+        {"name": "Current User", "request": {"method": "GET", "url": "{{baseUrl}}/auth/me"}},
+        {"name": "Logout", "request": {"method": "POST", "url": "{{baseUrl}}/auth/logout"}},
+        {"name": "Logout Everywhere", "request": {"method": "POST", "url": "{{baseUrl}}/auth/logout-everywhere"}},
+        {"name": "Resolve Teacher Email", "request": {"auth": {"type": "noauth"}, "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"teacher_id\": {{teacherId}}}"}, "url": "{{baseUrl}}/auth/resolve-teacher-email"}},
+        {"name": "Resolve Parent Email", "request": {"auth": {"type": "noauth"}, "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"student_identifier\": \"STU001\"}"}, "url": "{{baseUrl}}/auth/resolve-parent-email"}}
+      ]
+    },
+    {
+      "name": "Profile and Notifications",
+      "item": [
+        {"name": "Get Profile", "request": {"method": "GET", "url": "{{baseUrl}}/profile"}},
+        {"name": "Update Profile", "request": {"method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"phone\": \"9876543210\"}"}, "url": "{{baseUrl}}/profile"}},
+        {"name": "Change Password", "request": {"method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"password\": \"ChangeMe123\"}"}, "url": "{{baseUrl}}/profile/password"}},
+        {"name": "Dashboard Stats", "request": {"method": "GET", "url": "{{baseUrl}}/dashboard/stats"}},
+        {"name": "List Notifications", "request": {"method": "GET", "url": "{{baseUrl}}/notifications"}},
+        {"name": "Mark Notification Read", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"id\": 1}"}, "url": "{{baseUrl}}/notifications/mark-read"}},
+        {"name": "Mark All Notifications Read", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"ids\": [1, 2]}"}, "url": "{{baseUrl}}/notifications/mark-all-read"}},
+        {"name": "Push VAPID Key", "request": {"method": "GET", "url": "{{baseUrl}}/notifications/push/vapid-key"}}
+      ]
+    },
+    {
+      "name": "Core School Data",
+      "item": [
+        {"name": "List Classes (Paginated)", "request": {"method": "GET", "url": "{{baseUrl}}/classes?page=1&per_page=20"}},
+        {"name": "Create Class", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"name\": \"Grade 1\", \"section\": \"A\", \"academic_year\": \"2026-2027\"}"}, "url": "{{baseUrl}}/classes"}},
+        {"name": "Update Class", "request": {"method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"name\": \"Grade 1\", \"section\": \"A\"}"}, "url": "{{baseUrl}}/classes/{{classId}}"}},
+        {"name": "Delete Class", "request": {"method": "DELETE", "url": "{{baseUrl}}/classes/{{classId}}"}},
+        {"name": "List Subjects (Paginated)", "request": {"method": "GET", "url": "{{baseUrl}}/subjects?page=1&per_page=20"}},
+        {"name": "Create Subject", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"name\": \"Mathematics\", \"code\": \"MATH\", \"category\": \"core\"}"}, "url": "{{baseUrl}}/subjects"}},
+        {"name": "List Students", "request": {"method": "GET", "url": "{{baseUrl}}/students?page=1&per_page=20"}},
+        {"name": "Student Directory", "request": {"method": "GET", "url": "{{baseUrl}}/students/directory?page=1&per_page=20"}},
+        {"name": "Student Attendance Summary", "request": {"method": "GET", "url": "{{baseUrl}}/students/{{studentId}}/attendance-summary"}},
+        {"name": "Attendance Report", "request": {"method": "GET", "url": "{{baseUrl}}/attendance/report?start=2026-01-01&end=2026-12-31&class_id={{classId}}"}},
+        {"name": "List Teachers", "request": {"method": "GET", "url": "{{baseUrl}}/teachers"}},
+        {"name": "List Parents", "request": {"method": "GET", "url": "{{baseUrl}}/parents"}},
+        {"name": "List Announcements", "request": {"method": "GET", "url": "{{baseUrl}}/announcements"}},
+        {"name": "Create Announcement", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"title\": \"Welcome\", \"content\": \"School opens Monday\", \"target_audience\": \"all\"}"}, "url": "{{baseUrl}}/announcements"}}
+      ]
+    },
+    {
+      "name": "Teacher Portal",
+      "item": [
+        {"name": "Teacher Dashboard", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/dashboard"}},
+        {"name": "Teacher Classes", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/classes"}},
+        {"name": "Attendance Data", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/attendance-data?class_id={{classId}}&date=2026-09-09"}},
+        {"name": "Save Attendance", "request": {"method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"date\": \"2026-09-09\", \"records\": [{\"student_id\": {{studentId}}, \"status\": \"present\"}]}"}, "url": "{{baseUrl}}/teacher/attendance"}},
+        {"name": "Teacher Homework Data", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/homework-data"}},
+        {"name": "Create Homework", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"title\": \"Math exercises\", \"due_date\": \"2026-09-15\", \"class_id\": {{classId}}, \"description\": \"Complete exercises 1 to 10\"}"}, "url": "{{baseUrl}}/teacher/homework"}},
+        {"name": "Teacher Timetable", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/timetable-data?class_id={{classId}}"}},
+        {"name": "Teacher Syllabus", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/syllabus-data"}}
+      ]
+    },
+    {
+      "name": "Parent Portal",
+      "item": [
+        {"name": "Parent Dashboard", "request": {"method": "GET", "url": "{{baseUrl}}/parent/dashboard"}},
+        {"name": "Parent Children", "request": {"method": "GET", "url": "{{baseUrl}}/parent/children-data"}},
+        {"name": "Parent Attendance", "request": {"method": "GET", "url": "{{baseUrl}}/parent/attendance-data?start_date=2026-01-01&end_date=2026-12-31"}},
+        {"name": "Parent Fees", "request": {"method": "GET", "url": "{{baseUrl}}/parent/fees-data"}},
+        {"name": "Payment Gateway Config", "request": {"method": "GET", "url": "{{baseUrl}}/parent/fees/payment-gateway-config"}},
+        {"name": "Create Fee Order", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"amount\": 1000}"}, "url": "{{baseUrl}}/parent/fees/{{feeId}}/create-order"}},
+        {"name": "Create Parent Complaint", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"subject\": \"Transport\", \"description\": \"Please contact me\", \"visible_to\": \"admin\"}"}, "url": "{{baseUrl}}/parent/complaints"}},
+        {"name": "Create Certificate Request", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"certificate_type\": \"Bonafide\", \"description\": \"Required for scholarship\"}"}, "url": "{{baseUrl}}/parent/certificate-requests"}}
+      ]
+    },
+    {
+      "name": "Fees and Exams",
+      "item": [
+        {"name": "Fees Management Data (Paginated)", "request": {"method": "GET", "url": "{{baseUrl}}/fees/management-data?page=1&per_page=20"}},
+        {"name": "Students by Classes", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"class_ids\": [{{classId}}]}"}, "url": "{{baseUrl}}/fees/class-students"}},
+        {"name": "Record Fee Payment", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"amount\": 1000, \"payment_method\": \"cash\"}"}, "url": "{{baseUrl}}/fees/{{feeId}}/record-payment"}},
+        {"name": "Exams Data", "request": {"method": "GET", "url": "{{baseUrl}}/exams/data"}},
+        {"name": "Weekly Exams Data", "request": {"method": "GET", "url": "{{baseUrl}}/weekly-exams/data"}},
+        {"name": "Create Weekly Exam", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"class_id\": {{classId}}, \"syllabus_type\": \"weekly\", \"title\": \"Weekly Test\", \"exam_date\": \"2026-09-15\", \"exam_time\": \"10:00\", \"duration_minutes\": 60, \"total_marks\": 25}"}, "url": "{{baseUrl}}/weekly-exams"}},
+        {"name": "Exam Marks Data", "request": {"method": "GET", "url": "{{baseUrl}}/exams/1/marks-data"}}
+      ]
+    },
+    {
+      "name": "Administration",
+      "item": [
+        {"name": "Timetable Management Data", "request": {"method": "GET", "url": "{{baseUrl}}/admin/timetable/management-data"}},
+        {"name": "Timetable Schedule Config", "request": {"method": "GET", "url": "{{baseUrl}}/timetable/schedule-config?class_id={{classId}}"}},
+        {"name": "Syllabus Data", "request": {"method": "GET", "url": "{{baseUrl}}/admin/syllabus/data"}},
+        {"name": "Question Papers Data", "request": {"method": "GET", "url": "{{baseUrl}}/admin/question-papers/data"}},
+        {"name": "Exam Cycles", "request": {"method": "GET", "url": "{{baseUrl}}/admin/exam-cycles"}},
+        {"name": "Gallery Folders", "request": {"method": "GET", "url": "{{baseUrl}}/gallery/folders"}},
+        {"name": "Academic Calendar", "request": {"method": "GET", "url": "{{baseUrl}}/academic-calendar?year=2026"}},
+        {"name": "Leads", "request": {"method": "GET", "url": "{{baseUrl}}/leads?page=1&per_page=20"}},
+        {"name": "Create Lead", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"name\": \"Prospective Parent\", \"phone\": \"9876543210\", \"status\": \"new\"}"}, "url": "{{baseUrl}}/leads"}},
+        {"name": "Promotion History", "request": {"method": "GET", "url": "{{baseUrl}}/promotion/history"}}
+      ]
+    },
+    {
+      "name": "Messaging",
+      "item": [
+        {"name": "Messaging Classes", "request": {"method": "GET", "url": "{{baseUrl}}/messaging/classes"}},
+        {"name": "Messaging Contacts", "request": {"method": "GET", "url": "{{baseUrl}}/messaging/contacts"}},
+        {"name": "Messages", "request": {"method": "GET", "url": "{{baseUrl}}/messaging/messages?contact_id=1&limit=50"}},
+        {"name": "Send Message", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"recipient_id\": 1, \"content\": \"Hello from Postman\"}"}, "url": "{{baseUrl}}/messaging/messages"}}
+      ]
+    }
+  ]
+}
