@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Loader2, GraduationCap, ArrowRight, CheckCircle2, Landmark, ClipboardCheck, TrendingUp, Users, BookOpen, Calendar, FileText, Bell } from 'lucide-react';
 
 const APP_SCREENS = [
-  "https://i.postimg.cc/x1Fs3Yy6/Whats-App-Image-2026-05-25-at-2-59-17-PM.jpg",
-  "https://i.postimg.cc/BZzvLZ6V/Whats-App-Image-2026-05-25-at-3-44-17-PM.jpg",
-  "https://i.postimg.cc/W332zxcK/Whats-App-Image-2026-05-25-at-3-44-18-PM.jpg",
-  "https://i.postimg.cc/Vs2CyWjt/Whats-App-Image-2026-05-25-at-3-44-19-PM.jpg",
-  "https://i.postimg.cc/VNN60Jq8/Whats-App-Image-2026-05-25-at-3-44-20-PM-(1).jpg",    
+  "https://schoolwebapp1.s3.ap-south-2.amazonaws.com/Screens/Screen_1.jpg",
+  "https://schoolwebapp1.s3.ap-south-2.amazonaws.com/Screens/Screen_2.jpg",
+  "https://schoolwebapp1.s3.ap-south-2.amazonaws.com/Screens/Screen_3.jpg",
+  "https://schoolwebapp1.s3.ap-south-2.amazonaws.com/Screens/Screen_4.jpg",
+  "https://schoolwebapp1.s3.ap-south-2.amazonaws.com/Screens/Screen_5.jpg",    
 ];
 
 export default function Index() {
