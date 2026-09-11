@@ -305,14 +305,20 @@ class CoreDataController extends Controller
 
     public function announcements(Request $request): JsonResponse
     {
+        $query = ClassroomAnnouncement::query();
+        $targetAudience = $request->query('target_audience');
+        if (is_string($targetAudience) && $targetAudience !== '' && $targetAudience !== 'all') {
+            $query->whereJsonContains('target_audience', $targetAudience);
+        }
+
         return $this->paginatedListResponse(
             $request,
-            ClassroomAnnouncement::orderByDesc('created_at'),
+            $query->orderByDesc('created_at'),
             fn ($row) => $row,
             [
                 'search' => ['title', 'content'],
                 'date_column' => 'created_at',
-                'sortable' => ['created_at', 'title'],
+                'sortable' => ['created_at', 'announcements.created_at', 'title'],
             ]
         );
     }

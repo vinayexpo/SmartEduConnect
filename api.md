@@ -127,7 +127,7 @@ Roles in the application are `admin`, `teacher`, and `parent`. Most routes are p
 | POST | `/admin/students`, `/teacher/students` | Authenticated | Student creation: `full_name`, `class_id`, `password`; optional student, parent, emergency-contact, and `photo` fields |
 | PUT / DELETE | `/admin/students/{id}`, `/teacher/students/{id}` | Authenticated | Student update / delete aliases |
 | POST | `/admin/students/import` | Authenticated | `{rows: [...]}` student import |
-| GET | `/announcements` | Authenticated | Announcements |
+| GET | `/announcements` | Authenticated | Announcements; supports `page`, `per_page`, `search`, `date_from`, `date_to`, `sort_by`, `sort_dir`, and `target_audience` (`all`, `teachers`, `students`, or `parents`) |
 | POST | `/announcements` | Authenticated | `title`, `content`, optional `target_audience`; returns `201` announcement |
 | DELETE | `/announcements/{id}` | Authenticated | Delete announcement |
 
@@ -236,13 +236,13 @@ Roles in the application are `admin`, `teacher`, and `parent`. Most routes are p
 | GET | `/teacher/classes`, `/teacher/dashboard` | Authenticated | Assigned classes and dashboard data |
 | GET / PUT | `/teacher/attendance-data`, `/teacher/attendance` | Authenticated | GET optional `class_id`, `date`; PUT `{date, records: [{student_id, status}]}` where status is `present`, `absent`, or `late` |
 | GET | `/teacher/students-data`, `/teacher/timetable-data` | Authenticated | Optional `class_id` |
-| GET / POST | `/teacher/leave-requests` | Authenticated | POST `from_date`, `to_date`, `reason`, optional `attachment`. Overlapping leave dates for the same teacher are rejected with `422`. |
+| GET / POST | `/teacher/leave-requests` | Authenticated | GET supports `page`, `per_page`, `status` (`pending`, `approved`, `rejected`), and sorting. POST `from_date`, `to_date`, `reason`, optional `attachment`. Overlapping leave dates for the same teacher are rejected with `422`. |
 | GET / POST / DELETE | `/teacher/homework-data`, `/teacher/homework`, `/teacher/homework/{id}` | Authenticated | POST `title`, `due_date`, `class_id`, optional `description`, `subject_id`, `attachment` |
 | GET | `/teacher/weekly-exams-data`, `/teacher/exams-data` | Authenticated | Exam data |
-| GET | `/teacher/reports-data`, `/teacher/class-students` | Authenticated | Reports supports `page`, `per_page`, `search`, `category`, `severity`, `date_from`, `date_to`, `sort_by`, and `sort_dir`; class students request needs `class_id` |
+| GET | `/teacher/reports-data`, `/teacher/class-students` | Authenticated | Reports supports `page`, `per_page`, `search`, `category`, `severity`, `date_from`, `date_to`, `sort_by`, and `sort_dir`. The embedded `complaints` list supports `status` (`open`, `in_progress`, `resolved`). Class students request needs `class_id` |
 | POST | `/teacher/reports` | Authenticated | `student_id`, `category`, `description`, optional `severity`, `parent_visible` |
 | PUT | `/teacher/complaints/{id}` | Authenticated | `status` (`open`, `in_progress`, `resolved`), optional `response` |
-| GET / PUT | `/teacher/syllabus-data`, `/teacher/syllabus/{id}/complete` | Authenticated | Syllabus data / mark item completed |
+| GET / PUT | `/teacher/syllabus-data`, `/teacher/syllabus/{id}/complete` | Authenticated | Syllabus data supports `page`, `per_page`, `search`, `syllabus_type` (`general` or `competitive`), and sorting; mark item completed |
 
 ## Parent Portal
 

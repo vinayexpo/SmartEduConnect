@@ -832,7 +832,18 @@ class TeacherPortalController extends Controller
                 ])
             : collect();
 
-        $syllabusRows = DB::table('syllabus')
+        if ($request->query('sort_by') === 'created_at') {
+            $request->merge(['sort_by' => 'syllabus.created_at']);
+        }
+
+        $syllabusOptions = [
+            'search' => ['syllabus.chapter_name', 'syllabus.topic_name', 'subjects.name'],
+            'filters' => ['syllabus_type' => 'syllabus.syllabus_type'],
+            'date_column' => 'syllabus.created_at',
+            'sortable' => ['syllabus.created_at', 'syllabus.schedule_date', 'syllabus.syllabus_type'],
+        ];
+
+        $syllabusQuery = DB::table('syllabus')
             ->leftJoin('classes', 'classes.id', '=', 'syllabus.class_id')
             ->leftJoin('subjects', 'subjects.id', '=', 'syllabus.subject_id')
             ->select(
@@ -853,10 +864,9 @@ class TeacherPortalController extends Controller
                 'classes.name as class_name',
                 'classes.section as class_section',
                 'subjects.name as subject_name'
-            )
-            ->get();
+            );
 
-        $syllabus = $syllabusRows->map(fn ($row) => [
+        $mapSyllabus = fn ($row) => [
             'id' => (string) $row->id,
             'chapter_name' => $row->chapter_name,
             'topic_name' => $row->topic_name,
@@ -873,7 +883,10 @@ class TeacherPortalController extends Controller
             'subject_id' => (string) $row->subject_id,
             'classes' => $row->class_name ? ['name' => $row->class_name, 'section' => $row->class_section] : null,
             'subjects' => $row->subject_name ? ['name' => $row->subject_name] : null,
-        ]);
+        ];
+
+        $syllabusResponse = $this->paginatedListResponse($request, $syllabusQuery, $mapSyllabus, $syllabusOptions)->getData(true);
+        $syllabusRows = collect($this->wantsPagination($request) ? $syllabusResponse['data'] : $syllabusResponse);
 
         $completedByNames = [];
         $completedByIds = $syllabusRows->pluck('completed_by')->filter()->unique()->values()->all();
@@ -887,7 +900,7 @@ class TeacherPortalController extends Controller
         return response()->json([
             'teacherName' => $teacherName,
             'mappings' => $mappings,
-            'syllabus' => $syllabus,
+            'syllabus' => $syllabusResponse,
             'completedByNames' => $completedByNames,
         ]);
     }
@@ -1156,6 +1169,10 @@ class TeacherPortalController extends Controller
 
     public function reportsData(Request $request): JsonResponse
     {
+        if ($request->query('sort_by') === 'created_at') {
+            $request->merge(['sort_by' => 'student_reports.created_at']);
+        }
+
         $teacher = DB::table('teachers')->where('user_id', $request->user()->id)->first();
         if (! $teacher) {
             return response()->json(['teacherId' => null, 'classes' => [], 'reports' => [], 'complaints' => []]);
@@ -1213,9 +1230,15 @@ class TeacherPortalController extends Controller
         $complaints = collect();
         if (Schema::hasTable('complaints')) {
             $hasVisibleTo = Schema::hasColumn('complaints', 'visible_to');
-            $complaints = DB::table('complaints')
-                ->orderByDesc('created_at')
-                ->get()
+            $complaintsQuery = DB::table('complaints')
+                ->orderByDesc('created_at');
+
+            $status = $request->query('status');
+            if (is_string($status) && in_array($status, ['open', 'in_progress', 'resolved'], true)) {
+                $complaintsQuery->where('status', $status);
+            }
+
+            $complaints = $complaintsQuery->get()
                 ->filter(function ($row) use ($hasVisibleTo) {
                     $visibleTo = $hasVisibleTo
                         ? $this->decodeVisibleTo($row->visible_to ?? null)
@@ -1414,12 +1437,19 @@ class TeacherPortalController extends Controller
             return response()->json(['teacherId' => null, 'leaveRequests' => []]);
         }
 
-        $rows = DB::table('leave_requests')
+        $leaveOptions = [
+            'filters' => ['status' => 'leave_requests.status'],
+            'date_column' => 'leave_requests.created_at',
+            'sortable' => ['leave_requests.created_at', 'leave_requests.from_date', 'leave_requests.to_date', 'leave_requests.status'],
+        ];
+
+        $rows = $this->paginatedListResponse(
+            $request,
+            DB::table('leave_requests')
             ->where('teacher_id', $teacher->id)
             ->where('request_type', 'teacher')
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(fn ($row) => [
+            ->orderByDesc('created_at'),
+            fn ($row) => [
                 'id' => (string) $row->id,
                 'from_date' => $row->from_date,
                 'to_date' => $row->to_date,
@@ -1427,7 +1457,9 @@ class TeacherPortalController extends Controller
                 'status' => $row->status,
                 'created_at' => $row->created_at,
                 'attachment_url' => $this->normalizeLegacyAttachmentUrl($row->attachment_url),
-            ]);
+            ],
+            $leaveOptions,
+        )->getData(true);
 
         return response()->json([
             'teacherId' => (string) $teacher->id,

@@ -58,7 +58,7 @@
         {"name": "Attendance Report", "request": {"method": "GET", "url": "{{baseUrl}}/attendance/report?start=2026-01-01&end=2026-12-31&class_id={{classId}}"}},
         {"name": "List Teachers", "request": {"method": "GET", "url": "{{baseUrl}}/teachers"}},
         {"name": "List Parents", "request": {"method": "GET", "url": "{{baseUrl}}/parents"}},
-        {"name": "List Announcements", "request": {"method": "GET", "url": "{{baseUrl}}/announcements"}},
+        {"name": "Announcements for Parents", "request": {"method": "GET", "url": "{{baseUrl}}/announcements?page=1&per_page=15&sort_by=announcements.created_at&sort_dir=desc&target_audience=parents"}},
         {"name": "Create Announcement", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"title\": \"Welcome\", \"content\": \"School opens Monday\", \"target_audience\": \"all\"}"}, "url": "{{baseUrl}}/announcements"}}
       ]
     },
@@ -72,8 +72,9 @@
         {"name": "Teacher Homework Data", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/homework-data"}},
         {"name": "Create Homework", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"title\": \"Math exercises\", \"due_date\": \"2026-09-15\", \"class_id\": {{classId}}, \"description\": \"Complete exercises 1 to 10\"}"}, "url": "{{baseUrl}}/teacher/homework"}},
         {"name": "Teacher Timetable", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/timetable-data?class_id={{classId}}"}},
-        {"name": "Teacher Syllabus", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/syllabus-data"}},
-        {"name": "Teacher Reports (Paginated)", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/reports-data?page=1&per_page=20"}},
+        {"name": "Teacher Syllabus - Competitive", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/syllabus-data?page=1&per_page=15&sort_by=created_at&sort_dir=desc&syllabus_type=competitive"}},
+        {"name": "Teacher Reports - Open Complaints", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/reports-data?page=1&per_page=10&sort_by=created_at&sort_dir=desc&status=open"}},
+        {"name": "Teacher Leave - Pending", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/leave-requests?page=1&per_page=10&sort_by=leave_requests.created_at&sort_dir=desc&status=pending"}},
         {"name": "Submit Teacher Leave", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"from_date\": \"2026-09-15\", \"to_date\": \"2026-09-15\", \"reason\": \"Medical leave\"}"}, "url": "{{baseUrl}}/teacher/leave-requests"}}
       ]
     },
