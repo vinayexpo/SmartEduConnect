@@ -72,7 +72,9 @@
         {"name": "Teacher Homework Data", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/homework-data"}},
         {"name": "Create Homework", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"title\": \"Math exercises\", \"due_date\": \"2026-09-15\", \"class_id\": {{classId}}, \"description\": \"Complete exercises 1 to 10\"}"}, "url": "{{baseUrl}}/teacher/homework"}},
         {"name": "Teacher Timetable", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/timetable-data?class_id={{classId}}"}},
-        {"name": "Teacher Syllabus", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/syllabus-data"}}
+        {"name": "Teacher Syllabus", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/syllabus-data"}},
+        {"name": "Teacher Reports (Paginated)", "request": {"method": "GET", "url": "{{baseUrl}}/teacher/reports-data?page=1&per_page=20"}},
+        {"name": "Submit Teacher Leave", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"from_date\": \"2026-09-15\", \"to_date\": \"2026-09-15\", \"reason\": \"Medical leave\"}"}, "url": "{{baseUrl}}/teacher/leave-requests"}}
       ]
     },
     {

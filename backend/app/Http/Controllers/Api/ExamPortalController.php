@@ -111,6 +111,22 @@ class ExamPortalController extends Controller
             ];
         })->all();
 
+        foreach ($rows as $index => $row) {
+            if (! $row['class_id'] || ! $row['exam_date'] || ! $row['exam_time']) {
+                continue;
+            }
+
+            foreach (array_slice($rows, 0, $index) as $previousRow) {
+                if ($previousRow['class_id'] == $row['class_id'] && $previousRow['exam_date'] === $row['exam_date'] && $previousRow['exam_time'] === $row['exam_time']) {
+                    return response()->json(['message' => 'Only one exam can be scheduled for a class in the same date and time slot.'], 422);
+                }
+            }
+
+            if ($this->examSlotExists((int) $row['class_id'], $row['exam_date'], $row['exam_time'])) {
+                return response()->json(['message' => 'Only one exam can be scheduled for a class in the same date and time slot.'], 422);
+            }
+        }
+
         try {
             DB::table('exams')->insert($rows);
         } catch (QueryException $e) {
@@ -277,6 +293,15 @@ class ExamPortalController extends Controller
             'created_by' => ['nullable'],
         ]);
 
+        $examTime = $this->normalizeExamTime($validated['exam_time']);
+        if (! $examTime) {
+            return response()->json(['message' => 'The exam time must be a valid time.'], 422);
+        }
+
+        if ($this->examSlotExists((int) $validated['class_id'], $validated['exam_date'], $examTime)) {
+            return response()->json(['message' => 'Only one exam can be scheduled for a class in the same date and time slot.'], 422);
+        }
+
         $hasSubjectId = Schema::hasColumn('weekly_exams', 'subject_id');
         $insert = [
             'class_id' => $validated['class_id'],
@@ -285,7 +310,7 @@ class ExamPortalController extends Controller
             'week_number' => $validated['week_number'] ?? null,
             'exam_title' => $validated['exam_title'],
             'exam_date' => $validated['exam_date'],
-            'exam_time' => $validated['exam_time'],
+            'exam_time' => $examTime,
             'duration_minutes' => $validated['duration_minutes'],
             'total_marks' => $validated['total_marks'],
             'negative_marking' => $validated['negative_marking'] ?? false,
@@ -352,6 +377,15 @@ class ExamPortalController extends Controller
             'exam_type_label' => ['nullable', 'string'],
         ]);
 
+        $examTime = $this->normalizeExamTime($validated['exam_time']);
+        if (! $examTime) {
+            return response()->json(['message' => 'The exam time must be a valid time.'], 422);
+        }
+
+        if ($this->examSlotExists((int) $validated['class_id'], $validated['exam_date'], $examTime, $id)) {
+            return response()->json(['message' => 'Only one exam can be scheduled for a class in the same date and time slot.'], 422);
+        }
+
         $update = [
             'class_id' => $validated['class_id'],
             'syllabus_type' => $validated['syllabus_type'],
@@ -359,7 +393,7 @@ class ExamPortalController extends Controller
             'week_number' => $validated['week_number'] ?? null,
             'exam_title' => $validated['exam_title'],
             'exam_date' => $validated['exam_date'],
-            'exam_time' => $validated['exam_time'],
+            'exam_time' => $examTime,
             'duration_minutes' => $validated['duration_minutes'],
             'total_marks' => $validated['total_marks'],
             'negative_marking' => $validated['negative_marking'] ?? false,
@@ -973,6 +1007,31 @@ class ExamPortalController extends Controller
         }
 
         return null;
+    }
+
+    private function examSlotExists(int $classId, string $examDate, string $examTime, ?int $ignoreWeeklyExamId = null): bool
+    {
+        $standardExamExists = Schema::hasTable('exams')
+            && DB::table('exams')
+                ->where('class_id', $classId)
+                ->whereDate('exam_date', $examDate)
+                ->where('exam_time', $examTime)
+                ->exists();
+
+        if ($standardExamExists || ! Schema::hasTable('weekly_exams')) {
+            return $standardExamExists;
+        }
+
+        $weeklyExamQuery = DB::table('weekly_exams')
+            ->where('class_id', $classId)
+            ->whereDate('exam_date', $examDate)
+            ->where('exam_time', $examTime);
+
+        if ($ignoreWeeklyExamId !== null) {
+            $weeklyExamQuery->where('id', '!=', $ignoreWeeklyExamId);
+        }
+
+        return $weeklyExamQuery->exists();
     }
 
     private function classRecipientUserIds(array $classIds): array

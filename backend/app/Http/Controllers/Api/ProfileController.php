@@ -79,7 +79,7 @@ class ProfileController extends Controller
     public function update(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
         ]);
 
         $profile = Profile::firstOrCreate(

@@ -32,8 +32,8 @@ class BulkImportController extends Controller
                 'address' => ['nullable', 'string'],
                 'blood_group' => ['nullable', 'string', 'max:10'],
                 'parent_name' => ['nullable', 'string', 'max:255'],
-                'parent_phone' => ['nullable', 'string', 'max:30'],
-                'emergency_contact' => ['nullable', 'string', 'max:30'],
+                'parent_phone' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
+                'emergency_contact' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
                 'emergency_contact_name' => ['nullable', 'string', 'max:255'],
             ],
             function (array $row): void {
@@ -65,7 +65,7 @@ class BulkImportController extends Controller
             [
                 'full_name' => ['required', 'string', 'max:100'],
                 'email' => ['nullable', 'email', 'max:255'],
-                'phone' => ['required', 'string', 'min:10', 'max:30'],
+                'phone' => ['required', 'string', 'regex:/^[0-9]{10}$/'],
                 'qualification' => ['required', 'string', 'max:255'],
                 'password' => ['required', 'string', 'min:6'],
                 'subjects' => ['required', 'string'],

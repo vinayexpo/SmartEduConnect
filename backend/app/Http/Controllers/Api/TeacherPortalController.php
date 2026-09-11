@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Support\HandlesUploadStorage;
+use App\Support\PaginatesLists;
 use App\Http\Controllers\Controller;
 use App\Models\ParentAccount;
 use App\Models\Profile;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 class TeacherPortalController extends Controller
 {
     use HandlesUploadStorage;
+    use PaginatesLists;
 
     public function attendanceData(Request $request): JsonResponse
     {
@@ -197,8 +199,8 @@ class TeacherPortalController extends Controller
             'address' => ['nullable', 'string'],
             'blood_group' => ['nullable', 'string', 'max:20'],
             'parent_name' => ['nullable', 'string', 'max:255'],
-            'parent_phone' => ['nullable', 'string', 'max:50'],
-            'emergency_contact' => ['nullable', 'string', 'max:50'],
+            'parent_phone' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
+            'emergency_contact' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
             'emergency_contact_name' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:4'],
             'email' => ['nullable', 'email', 'max:255'],
@@ -296,8 +298,8 @@ class TeacherPortalController extends Controller
             'address' => ['nullable', 'string'],
             'blood_group' => ['nullable', 'string', 'max:20'],
             'parent_name' => ['nullable', 'string', 'max:255'],
-            'parent_phone' => ['nullable', 'string', 'max:50'],
-            'emergency_contact' => ['nullable', 'string', 'max:50'],
+            'parent_phone' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
+            'emergency_contact' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
             'emergency_contact_name' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', 'string', 'max:30'],
             'password' => ['nullable', 'string', 'min:4'],
@@ -1172,9 +1174,11 @@ class TeacherPortalController extends Controller
             ->get()
             ->map(fn ($row) => ['id' => (string) $row->id, 'name' => $row->name, 'section' => $row->section]);
 
-        $reports = collect();
+        $reports = [];
         if (Schema::hasTable('student_reports') && $classIds->isNotEmpty()) {
-            $reports = DB::table('student_reports')
+            $reports = $this->paginatedListResponse(
+                $request,
+                DB::table('student_reports')
                 ->leftJoin('students', 'students.id', '=', 'student_reports.student_id')
                 ->whereIn('students.class_id', $classIds->all())
                 ->select(
@@ -1187,9 +1191,8 @@ class TeacherPortalController extends Controller
                     'students.full_name as student_name',
                     'students.admission_number'
                 )
-                ->orderByDesc('student_reports.created_at')
-                ->get()
-                ->map(fn ($row) => [
+                ->orderByDesc('student_reports.created_at'),
+                fn ($row) => [
                     'id' => (string) $row->id,
                     'category' => $row->category,
                     'description' => $row->description,
@@ -1197,7 +1200,14 @@ class TeacherPortalController extends Controller
                     'parent_visible' => (bool) $row->parent_visible,
                     'created_at' => $row->created_at,
                     'students' => $row->student_name ? ['full_name' => $row->student_name, 'admission_number' => $row->admission_number] : null,
-                ]);
+                ],
+                [
+                    'search' => ['students.full_name', 'students.admission_number', 'student_reports.category', 'student_reports.description'],
+                    'filters' => ['category' => 'student_reports.category', 'severity' => 'student_reports.severity'],
+                    'date_column' => 'student_reports.created_at',
+                    'sortable' => ['student_reports.created_at', 'student_reports.category', 'student_reports.severity'],
+                ],
+            )->getData(true);
         }
 
         $complaints = collect();
@@ -1438,6 +1448,17 @@ class TeacherPortalController extends Controller
             'reason' => ['required', 'string'],
             'attachment' => ['nullable', 'file', 'max:5120'],
         ]);
+
+        $hasOverlappingLeave = DB::table('leave_requests')
+            ->where('teacher_id', $teacher->id)
+            ->where('request_type', 'teacher')
+            ->whereDate('from_date', '<=', $validated['to_date'])
+            ->whereDate('to_date', '>=', $validated['from_date'])
+            ->exists();
+
+        if ($hasOverlappingLeave) {
+            return response()->json(['message' => 'A leave request already exists for one or more selected dates.'], 422);
+        }
 
         $attachmentUrl = null;
         if ($request->hasFile('attachment')) {

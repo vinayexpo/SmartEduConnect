@@ -121,7 +121,7 @@ Roles in the application are `admin`, `teacher`, and `parent`. Most routes are p
 |---|---|---|---|
 | GET | `/teachers`, `/teachers/basic`, `/parents` | Authenticated | Teacher or parent lists |
 | GET | `/teachers/management` | Authenticated | Management teacher list |
-| POST | `/teachers` | Authenticated | `full_name`, `qualification`, `password`, `subjects`; optional `email`, `phone`, `class_teacher_of`, `photo`; returns `201 {id}` |
+| POST | `/teachers` | Authenticated | `full_name`, `qualification`, `password`, `subjects`; `phone` must be exactly 10 digits; optional `email`, `class_teacher_of`, `photo`; returns `201 {id}` |
 | PUT / DELETE | `/teachers/{id}` | Authenticated | Update / delete teacher |
 | POST | `/teachers/management/import` | Authenticated | `{rows: [...]}` teacher import |
 | POST | `/admin/students`, `/teacher/students` | Authenticated | Student creation: `full_name`, `class_id`, `password`; optional student, parent, emergency-contact, and `photo` fields |
@@ -217,12 +217,12 @@ Roles in the application are `admin`, `teacher`, and `parent`. Most routes are p
 | Method | Path | Access | Request / response |
 |---|---|---|---|
 | GET | `/exams/data`, `/exams/results-data` | Authenticated | Exams, results, classes, and subjects data bundles |
-| POST | `/exams/bulk` | Authenticated | `{records: [{name, exam_date?, exam_time?, max_marks?, class_id?, subject_id?}]}` |
+| POST | `/exams/bulk` | Authenticated | `{records: [{name, exam_date?, exam_time?, max_marks?, class_id?, subject_id?}]}`. Only one standard or weekly exam is permitted for each class/date/time slot. |
 | DELETE | `/exams/{id}` | Authenticated | Delete exam |
 | GET | `/exams/{id}/marks-data` | Authenticated | Students and marks |
 | PUT | `/exams/{id}/marks` | Authenticated | `{records: [{student_id, marks_obtained?, grade?, remarks?}]}` |
 | POST | `/exams/{id}/marks/import` | Authenticated | `{rows: [{admission_number, marks_obtained?, grade?, remarks?}]}` |
-| GET / POST | `/weekly-exams/data`, `/weekly-exams` | Authenticated | List data / create weekly exam |
+| GET / POST | `/weekly-exams/data`, `/weekly-exams` | Authenticated | List data / create weekly exam. A class cannot have another standard or weekly exam at the same date and time. |
 | PUT / DELETE | `/weekly-exams/{id}` | Authenticated | Update / delete weekly exam |
 | PUT | `/weekly-exams/{id}/status` | Authenticated | `{status}` |
 | PUT | `/weekly-exams/{id}/syllabus-links` | Authenticated | `{syllabus_ids?: number[]}` |
@@ -236,10 +236,10 @@ Roles in the application are `admin`, `teacher`, and `parent`. Most routes are p
 | GET | `/teacher/classes`, `/teacher/dashboard` | Authenticated | Assigned classes and dashboard data |
 | GET / PUT | `/teacher/attendance-data`, `/teacher/attendance` | Authenticated | GET optional `class_id`, `date`; PUT `{date, records: [{student_id, status}]}` where status is `present`, `absent`, or `late` |
 | GET | `/teacher/students-data`, `/teacher/timetable-data` | Authenticated | Optional `class_id` |
-| GET / POST | `/teacher/leave-requests` | Authenticated | POST `from_date`, `to_date`, `reason`, optional `attachment` |
+| GET / POST | `/teacher/leave-requests` | Authenticated | POST `from_date`, `to_date`, `reason`, optional `attachment`. Overlapping leave dates for the same teacher are rejected with `422`. |
 | GET / POST / DELETE | `/teacher/homework-data`, `/teacher/homework`, `/teacher/homework/{id}` | Authenticated | POST `title`, `due_date`, `class_id`, optional `description`, `subject_id`, `attachment` |
 | GET | `/teacher/weekly-exams-data`, `/teacher/exams-data` | Authenticated | Exam data |
-| GET | `/teacher/reports-data`, `/teacher/class-students` | Authenticated | Class students request needs `class_id` |
+| GET | `/teacher/reports-data`, `/teacher/class-students` | Authenticated | Reports supports `page`, `per_page`, `search`, `category`, `severity`, `date_from`, `date_to`, `sort_by`, and `sort_dir`; class students request needs `class_id` |
 | POST | `/teacher/reports` | Authenticated | `student_id`, `category`, `description`, optional `severity`, `parent_visible` |
 | PUT | `/teacher/complaints/{id}` | Authenticated | `status` (`open`, `in_progress`, `resolved`), optional `response` |
 | GET / PUT | `/teacher/syllabus-data`, `/teacher/syllabus/{id}/complete` | Authenticated | Syllabus data / mark item completed |

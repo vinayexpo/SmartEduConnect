@@ -92,7 +92,7 @@ class TeacherManagementController extends Controller
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'min:10', 'max:30'],
+            'phone' => ['required', 'string', 'regex:/^[0-9]{10}$/'],
             'qualification' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:6'],
             'subjects' => ['required', 'string'],
@@ -164,7 +164,7 @@ class TeacherManagementController extends Controller
     {
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:100'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'regex:/^[0-9]{10}$/'],
             'qualification' => ['nullable', 'string', 'max:255'],
             'subjects' => ['nullable', 'string'],
             'status' => ['nullable', 'string', 'max:30'],
