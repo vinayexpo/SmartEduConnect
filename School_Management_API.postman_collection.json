@@ -87,6 +87,7 @@
         {"name": "Payment Gateway Config", "request": {"method": "GET", "url": "{{baseUrl}}/parent/fees/payment-gateway-config"}},
         {"name": "Create Fee Order", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"amount\": 1000}"}, "url": "{{baseUrl}}/parent/fees/{{feeId}}/create-order"}},
         {"name": "Create Parent Complaint", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"subject\": \"Transport\", \"description\": \"Please contact me\", \"visible_to\": \"admin\"}"}, "url": "{{baseUrl}}/parent/complaints"}},
+        {"name": "Submit Student Leave", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"from_date\": \"2026-09-15\", \"to_date\": \"2026-09-15\", \"reason\": \"Medical leave\"}"}, "url": "{{baseUrl}}/parent/leave-requests"}},
         {"name": "Create Certificate Request", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"certificate_type\": \"Bonafide\", \"description\": \"Required for scholarship\"}"}, "url": "{{baseUrl}}/parent/certificate-requests"}}
       ]
     },

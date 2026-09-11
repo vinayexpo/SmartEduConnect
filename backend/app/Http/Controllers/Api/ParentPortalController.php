@@ -1374,6 +1374,17 @@ class ParentPortalController extends Controller
             'attachment' => ['nullable', 'file', 'max:5120'],
         ]);
 
+        $hasOverlappingLeave = DB::table('leave_requests')
+            ->where('student_id', $student->student_id)
+            ->where('request_type', 'student')
+            ->whereDate('from_date', '<=', $validated['to_date'])
+            ->whereDate('to_date', '>=', $validated['from_date'])
+            ->exists();
+
+        if ($hasOverlappingLeave) {
+            return response()->json(['message' => 'A leave request already exists for one or more selected dates.'], 422);
+        }
+
         $attachmentUrl = null;
         if ($request->hasFile('attachment')) {
             $path = $request->file('attachment')->store('leave-docs', $this->uploadDisk());

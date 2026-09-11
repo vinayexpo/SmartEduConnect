@@ -255,7 +255,7 @@ Roles in the application are `admin`, `teacher`, and `parent`. Most routes are p
 | POST | `/parent/fees/{id}/verify-payment` | Authenticated | `razorpay_order_id`, `razorpay_payment_id`, `razorpay_signature` |
 | POST | `/parent/fees/{id}/pay` | Authenticated | `{amount}` fallback payment path when Razorpay is unavailable |
 | GET / POST | `/parent/complaints` | Authenticated | POST `subject`, `description`, `visible_to` (`admin` or `teacher`) |
-| GET / POST | `/parent/leave-requests` | Authenticated | POST `from_date`, `to_date`, `reason`, optional `attachment` |
+| GET / POST | `/parent/leave-requests` | Authenticated | POST `from_date`, `to_date`, `reason`, optional `attachment`. Overlapping leave dates for the same student are rejected with `422`. |
 | GET / POST | `/parent/certificate-requests` | Authenticated | POST `certificate_type`, optional `description`, `attachment` |
 
 ## Leads and Academic Calendar
