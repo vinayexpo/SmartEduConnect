@@ -49,7 +49,7 @@ export default function Index() {
       {/* Header Navigation */}
       <header className="container mx-auto px-4 pt-6 flex justify-between items-center relative z-20 animate-fade-in">
         <img 
-          src="https://i.postimg.cc/SxrVv2Y4/ase-logo-removebg-preview.png" 
+          src="https://schoolwebapp1.s3.ap-south-2.amazonaws.com/logos/ase_logo.webp"
           alt="Smart EduConnect Logo" 
           className="h-12 md:h-16 w-auto object-contain" 
         />

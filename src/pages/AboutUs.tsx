@@ -23,7 +23,7 @@ export default function AboutUs() {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
         <img 
-          src="https://i.postimg.cc/SxrVv2Y4/ase-logo-removebg-preview.png" 
+          src="https://schoolwebapp1.s3.ap-south-2.amazonaws.com/logos/ase_logo.webp"
           alt="ASE Technologies Logo" 
           className="h-12 md:h-16 w-auto object-contain" 
         />
